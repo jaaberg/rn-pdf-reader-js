@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import { render } from 'react-dom'
-import { Page, setOptions, Document } from 'react-pdf'
-import raf, { cancel } from 'raf'
-import Plus from './components/Plus'
-import Minus from './components/Minus'
-import Down from './components/down'
-import Up from './components/up'
-import './Reader.less'
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { Page, setOptions, Document } from 'react-pdf';
+import raf, { cancel } from 'raf';
+import Plus from './components/Plus';
+import Minus from './components/Minus';
+import Down from './components/down';
+import Up from './components/up';
+import './Reader.less';
 
-const ReactContainer = document.querySelector('#react-container')
+const ReactContainer = document.querySelector('#react-container');
 
 setOptions({
   workerSrc:
@@ -16,7 +16,7 @@ setOptions({
   disableWorker: false,
   cMapUrl: 'https://github.com/mozilla/pdfjs-dist/raw/master/cmaps/',
   cMapPacked: true,
-})
+});
 
 class Reader extends Component {
   state = {
@@ -27,105 +27,105 @@ class Reader extends Component {
     pageRendered: false,
     getText: false,
     scale: 0.75,
-  }
+  };
 
-  MAX_SCALE = 2
-  __zoomEvent = false
+  MAX_SCALE = 2;
+  __zoomEvent = false;
 
-  pageRefs = new Map()
+  pageRefs = new Map();
 
   onDocumentLoadSuccess = ({ numPages }) => {
-    this.setState({ numPages })
-  }
+    this.setState({ numPages });
+  };
 
   onError = error =>
-    window.alert('Error while loading document! \n' + error.message)
+    window.alert('Error while loading document! \n' + error.message);
 
   cache = pageKey => {
     if (!this.pageImgs.has(pageKey)) {
       this.pageImgs.set(
         pageKey,
-        this.pageRefs.get(pageKey).children[0].toDataURL('image/png'),
-      )
+        this.pageRefs.get(pageKey).children[0].toDataURL('image/png')
+      );
     }
-  }
+  };
 
   zoomOut = event => {
-    event.preventDefault()
+    event.preventDefault();
     if (!this.__zoomEvent) {
-      raf(this.zOut)
+      raf(this.zOut);
     }
-  }
+  };
 
   zoomIn = event => {
-    event.preventDefault() // this too
+    event.preventDefault(); // this too
     if (!this.__zoomEvent) {
-      raf(this.zIn)
+      raf(this.zIn);
     }
-  }
+  };
 
   zOut = () => {
-    console.log(this.state.scale)
+    console.log(this.state.scale);
     if (this.state.scale >= 0.75) {
       // min scale out is 0.5 and defaults @ 0.75
-      this.__zoomEvent = true
+      this.__zoomEvent = true;
       this.setState(previousState => ({
         scale: previousState.scale - 0.25,
-      }))
+      }));
     }
-  }
+  };
 
   zIn = () => {
-    console.log(this.state.scale)
+    console.log(this.state.scale);
     if (this.state.scale <= this.MAX_SCALE - 0.25) {
-      this.__zoomEvent = true
+      this.__zoomEvent = true;
       this.setState(previousState => ({
         scale: previousState.scale + 0.25,
-      }))
+      }));
     }
-  }
+  };
 
   up = () => {
-    const { currentPage } = this.state
+    const { currentPage } = this.state;
     if (currentPage > 1) {
-      const target = currentPage - 1
-      this.setState({ currentPage: target })
+      const target = currentPage - 1;
+      this.setState({ currentPage: target });
       if (!this.pageImgs.has(target)) {
         this.setState({
           pageLoaded: false,
           pageRendered: false,
           getText: false,
-        })
+        });
       }
     }
-    cancel(this.up)
-  }
+    cancel(this.up);
+  };
 
   down = () => {
-    const { currentPage, numPages } = this.state
+    const { currentPage, numPages } = this.state;
     if (currentPage < numPages) {
-      const target = currentPage + 1
-      this.setState({ currentPage: target })
+      const target = currentPage + 1;
+      this.setState({ currentPage: target });
       if (!this.pageImgs.has(target)) {
         this.setState({
           pageLoaded: false,
           pageRendered: false,
           getText: false,
-        })
+        });
       }
     }
-    cancel(this.down)
-  }
+    cancel(this.down);
+  };
 
   goUp = event => {
-    event.preventDefault()
-    raf(this.up)
-  }
+    event.preventDefault();
+    raf(this.up);
+  };
 
   goDown = event => {
-    event.preventDefault()
-    raf(this.down)
-  }
+    event.preventDefault();
+    raf(this.down);
+  };
 
   renderLoader = () => (
     <div
@@ -137,25 +137,25 @@ class Reader extends Component {
         alignItems: 'center',
       }}
     >
-      <p style={{ color: '#fff' }}>Loading...</p>
+      <p style={{ color: '#fff' }}> </p>
     </div>
-  )
+  );
 
   renderImage = pageNumber => (
     <img src={this.pageImgs.get(pageNumber)} style={{ width: '100%' }} />
-  )
+  );
 
   onPageReadyToCache = pageStatus => {
-    this.__zoomEvent = false
-    const { pageLoaded, pageRendered, getText, currentPage } = this.state
-    const newValue = { pageLoaded, pageRendered, getText, ...pageStatus }
+    this.__zoomEvent = false;
+    const { pageLoaded, pageRendered, getText, currentPage } = this.state;
+    const newValue = { pageLoaded, pageRendered, getText, ...pageStatus };
     if (newValue.pageLoaded && newValue.pageRendered && newValue.getText) {
-      this.cache(currentPage)
-      this.setState({ cached: true })
+      this.cache(currentPage);
+      this.setState({ cached: true });
     } else {
-      this.setState({ cached: false, ...pageStatus })
+      this.setState({ cached: false, ...pageStatus });
     }
-  }
+  };
 
   renderPage = pageNumber => {
     return (
@@ -172,12 +172,12 @@ class Reader extends Component {
         onGetTextSuccess={() => this.onPageReadyToCache({ getText: true })}
         scale={this.state.scale}
       />
-    )
-  }
+    );
+  };
 
   render() {
-    const { numPages, currentPage, cached, ready } = this.state
-    const { file } = this.props
+    const { numPages, currentPage, cached, ready } = this.state;
+    const { file } = this.props;
     return (
       <div className="Reader">
         <div className="Reader__container">
@@ -193,9 +193,6 @@ class Reader extends Component {
               {this.renderPage(currentPage)}
             </Document>
           </div>
-
-          {!cached && this.renderLoader()}
-
           {numPages && (
             <div className="Reader__container__numbers">
               <div className="Reader__container__numbers__content">
@@ -243,10 +240,10 @@ class Reader extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
-const tagData = document.querySelector('#file')
-const file = tagData.getAttribute('data-file')
-render(<Reader file={file} />, ReactContainer)
+const tagData = document.querySelector('#file');
+const file = tagData.getAttribute('data-file');
+render(<Reader file={file} />, ReactContainer);
