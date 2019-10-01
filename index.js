@@ -1,9 +1,15 @@
 // @flow
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
-import { WebView } from 'react-native-webview';
+import {
+  View,
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  WebView as OldWebView,
+} from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
+import { WebView } from 'react-native-webview';
 
 const {
   cacheDirectory,
@@ -221,7 +227,7 @@ class PdfReader extends Component<Props, State> {
     if (ready && data && android) {
       return (
         <View style={[styles.container, style]}>
-          <WebView
+          <OldWebView
             onLoad={onLoad}
             onLoadEnd={onLoadEnd}
             onError={onError}
